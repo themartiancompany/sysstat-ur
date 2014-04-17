@@ -41,8 +41,7 @@ build() {
 package() {
   cd $srcdir/$pkgname-$pkgver
   mkdir -p \
-    $pkgdir/etc/cron.hourly \
-    $pkgdir/etc/cron.daily \
+    $pkgdir/etc/cron.{hourly,daily} \
     $pkgdir/usr/lib/systemd/system
   make DESTDIR=$pkgdir install
   chown -R root:root $pkgdir

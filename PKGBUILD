@@ -3,7 +3,7 @@
 
 pkgname=sysstat
 pkgver=11.0.0
-pkgrel=1
+pkgrel=2
 pkgdesc="a collection of performance monitoring tools (iostat,isag,mpstat,pidstat,sadf,sar)"
 arch=('i686' 'x86_64')
 url="http://pagesperso-orange.fr/sebastien.godard/"
@@ -40,9 +40,7 @@ build() {
 
 package() {
   cd $srcdir/$pkgname-$pkgver
-  mkdir -p \
-    $pkgdir/etc/cron.{hourly,daily} \
-    $pkgdir/usr/lib/systemd/system
+  mkdir -p $pkgdir/usr/lib/systemd/system
   make DESTDIR=$pkgdir install
   chown -R root:root $pkgdir
   rm -rf $pkgdir/etc/rc*

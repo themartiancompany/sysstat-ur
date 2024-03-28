@@ -14,7 +14,6 @@ _sensors="true"
 [[ "${_os}" == "Android" ]] && \
   _systemd="false" && \
   _sensors="false" && \
-  _man="false"
 _pkg=sysstat
 pkgname="${_pkg}"
 pkgver=12.7.5
@@ -53,7 +52,7 @@ optdepends=(
   'gnuplot: to use isag'
 )
 options=(
-#   'zipman'
+  'zipman'
 )
 backup=(
   "etc/conf.d/${_pkg}"
@@ -74,6 +73,10 @@ sha512sums=(
 prepare() {
   cd \
     "${srcdir}/${pkgname}-${pkgver}"
+  [[ "${_man}" == "false" ]] && \
+    rm \
+      -rf \
+      "man/"*
   [[ "${CARCH}" == "x86_64" ]] || \
   [[ "${CARCH}" == "aarch64" ]] && \
     patch \
@@ -97,13 +100,15 @@ build() {
     --enable-copy-only
     # --disable-compress-manpg
   )
-  [[ "${_man}" == "false" ]] && \
   [[ "${_os}" == "Android" ]] && \
     _man_group="$( \
       id \
         -g)" && \
     _configure_vars+=(
       man_group="${_man_group}"
+    ) && \
+    _configure_opts+=(
+      --disable-file-attr
     )
   export \
     "${_configure_vars[@]}"
@@ -111,10 +116,8 @@ build() {
     _configure_opts+=(
       --disable-sensors
     )
-  echo "opts ${_configure_opts[*]}"
   cd \
     "${srcdir}/${_pkg}-${pkgver}"
-  "${_configure_vars[@]}" \
   ./configure \
     "${_configure_opts[@]}"
   # patch makefile for FULL RELRO builds

@@ -94,7 +94,7 @@ build() {
      conf_dir=/etc/conf.d
   )
   _configure_opts=(
-    --prefix=/usr
+    --prefix="/usr"
     --mandir=/usr/share/man
     --enable-install-cron
     --enable-copy-only
@@ -139,6 +139,7 @@ package() {
     "${pkgdir}/usr/lib/systemd/system"
   make \
     DESTDIR="${pkgdir}" \
+    PREFIX="/usr" \
     install
   [[ "${_os}" != "Android" ]] && \
     chown \

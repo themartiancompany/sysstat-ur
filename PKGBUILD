@@ -53,7 +53,7 @@ optdepends=(
   'gnuplot: to use isag'
 )
 options=(
-  'zipman'
+#   'zipman'
 )
 backup=(
   "etc/conf.d/${_pkg}"
@@ -74,33 +74,39 @@ sha512sums=(
 prepare() {
   cd \
     "${srcdir}/${pkgname}-${pkgver}"
-  patch \
-    -p1 < \
-    "${srcdir}/lib64-fix.patch"
+  [[ "${CARCH}" == "x86_64" ]] || \
+  [[ "${CARCH}" == "aarch64" ]] && \
+    patch \
+      -p1 < \
+      "${srcdir}/lib64-fix.patch"
   autoreconf
 }
 
 build() {
   local \
-    _configure_opts=()
+    _configure_opts=() \
+    _configure_vars=() \
+    _man_group
+   _configure_vars=(
+     conf_dir=/etc/conf.d
+  )
   _configure_opts=(
-    conf_dir=/etc/conf.d
     --prefix=/usr
     --mandir=/usr/share/man
     --enable-install-cron
     --enable-copy-only
-    --disable-compress-manpg
+    # --disable-compress-manpg
   )
   [[ "${_man}" == "false" ]] && \
-    _configure_opts+=(
-      --disable-man
-    )
   [[ "${_os}" == "Android" ]] && \
-    _configure_opts+=(
-      man_group="$( \
-        id \
-          -g)"
+    _man_group="$( \
+      id \
+        -g)" && \
+    _configure_vars+=(
+      man_group="${_man_group}"
     )
+  export \
+    "${_configure_vars[@]}"
   [[ "${_sensors}" == "false" ]] && \
     _configure_opts+=(
       --disable-sensors
@@ -108,6 +114,7 @@ build() {
   echo "opts ${_configure_opts[*]}"
   cd \
     "${srcdir}/${_pkg}-${pkgver}"
+  "${_configure_vars[@]}" \
   ./configure \
     "${_configure_opts[@]}"
   # patch makefile for FULL RELRO builds
